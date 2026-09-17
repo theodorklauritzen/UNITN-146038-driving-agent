@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(basic_agent_ST)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # If you are on mac x86
 #set(CMAKE_OSX_ARCHITECTURES x86_64)
 

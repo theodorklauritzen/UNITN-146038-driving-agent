@@ -38,7 +38,9 @@ set(BIN_DIR bin)
 
 set(CLIENT_TEST test_agent)
 
-set(UP_ONE_LEVEL_CMAKE ..)
+#set(UP_ONE_LEVEL_CMAKE ..)
+set(UP_ONE_LEVEL_CMAKE .) # This was changed to make the bin output to the same directory
+
 #------------------------------------------------------------------------------------
 
 # --------------------------- FOLDER PRUBLIC ----------------------------------------
