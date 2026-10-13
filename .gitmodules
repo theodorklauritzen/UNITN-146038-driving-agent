@@ -1,0 +1,3 @@
+[submodule "PyDrivingSim"]
+	path = PyDrivingSim
+	url = git@github.com:theodorklauritzen/PyDrivingSim.git
