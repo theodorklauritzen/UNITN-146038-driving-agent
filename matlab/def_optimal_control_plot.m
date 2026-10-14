@@ -1,4 +1,8 @@
-analytic_continous_solution
+def_optimal_control
+
+odes
+conds
+solution
 
 tf_val = 4.;
 t_val = linspace(0, tf_val, 200);
