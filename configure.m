@@ -9,5 +9,7 @@ addpath("matlab/generated")
 def_optimal_control
 def_stop_primitive
 
+generate_code
+
 clear; clc; close all;
 disp("Paths added and code generated");

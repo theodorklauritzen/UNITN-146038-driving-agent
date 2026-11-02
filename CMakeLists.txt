@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(lib/basic.cmake)
 
 include_directories(
-        matlab/
+        matlab/cpp_generated
         lib
         log
 )
@@ -22,6 +22,7 @@ link_directories(
 add_executable(basic_agent
         log/screen_print.c
         log/logvars.cc
+        matlab/cpp_generated
         starting_point.cc
     )
 

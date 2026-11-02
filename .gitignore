@@ -1,13 +1,7 @@
 .idea
 bin
-matlab/codegen/mex
-matlab/coef_list.m
-matlab/total_cost.m
-matlab/final_*
-matlab/j_opt.m
-matlab/a_opt.m
-matlab/s_opt.m
 matlab/generated
+matlab/cpp_generated
 
 cmake-build-release
 cmake-build-debug
@@ -22,4 +16,3 @@ CMakeFiles/
 log_internal/
 compile_commands.json
 
-cpp_generated
