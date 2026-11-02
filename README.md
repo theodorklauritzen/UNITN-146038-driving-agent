@@ -8,7 +8,7 @@
 5. Follow the guide for the evirorment setup;
 
 ## Agent Setup
-### Window
+### Windows
 #### Setup using WSL:
 1. Follow the guide to install wsl
    1. https://learn.microsoft.com/it-it/windows/wsl/install
@@ -91,7 +91,7 @@ sudo apt-get install clang
       1. Compile the agent using the following command:
       ```bash
       cmake .
-      make
+      cmake --build .
       ```
 5. Run the agent
 
@@ -112,6 +112,6 @@ brew install clang
       1. Compile the agent using the following command:
       ```bash
       cmake .
-      make
+      cmake --build .
       ```
 5. Run the agent
