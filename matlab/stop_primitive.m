@@ -4,5 +4,5 @@ function [m, sf_max, tf] = stop_primitive(v0, a0, sf)
 
     sf_max = max(sf, -4 * v0^2 / (5 * a0));
     tf = finalOptTimeStop(v0, a0, sf_max);
-    m = evalPrimiteCoeffs(v0, a0, sf_max, 0, 0, tf);
+    m = evalPrimitiveCoeffs(v0, a0, sf_max, 0, 0, tf);
 end

@@ -21,3 +21,5 @@ Makefile
 CMakeFiles/
 log_internal/
 compile_commands.json
+
+cpp_generated
