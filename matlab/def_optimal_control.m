@@ -51,3 +51,6 @@ opt_fun = matlabFunction([solution.s; solution.v; solution.a; j_solution], 'Vars
 j_total = simplify(int(j_solution^2, t, 0, tf));
 totalCost = matlabFunction(j_total, 'Vars', {v0, a0, sf, vf, af, tf}, 'File', 'matlab/generated/totalCost');
 
+% Extract the coefficients, they are scaled in the slides, so we need to scale them as well
+primitive_coeffs_list = coeffs(solution.s, t) .* [1, 2, 6, 24, 120];
+evalPrimitiveCoeffs = matlabFunction(primitive_coeffs_list, 'Vars', {v0, a0, sf, vf, af, tf}, 'File', 'matlab/generated/evalPrimitiveCoeffs');
