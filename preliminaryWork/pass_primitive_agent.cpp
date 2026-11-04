@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string.h>
 #include <math.h>
 #include <csignal>
@@ -22,6 +23,9 @@ void handle_sigint(int) {
 int main(int argc, const char * argv[]) {
     std::signal(SIGINT, handle_sigint);
 
+    std::ofstream statsFile("stats.csv");
+    statsFile << "cycle, time, velocity" << std::endl;
+
     server_agent_init(DEFAULT_SERVER_IP, SERVER_PORT);
 
     // Start server of the Agent
@@ -31,7 +35,7 @@ int main(int argc, const char * argv[]) {
     double integratedError = 0;
 
     constexpr double regP = 1;
-    constexpr double regI = 0.1;
+    constexpr double regI = 0.01;
 
     double lastMessageTime = 0;
 
@@ -56,6 +60,7 @@ int main(int argc, const char * argv[]) {
 
             // Example of using log
             std::cout << scenario_msg.data_struct << std::endl;
+            statsFile << in->CycleNumber << "," << num_seconds << "," << in->VLgtFild << std::endl;
 
             // ADD AGENT CODE HERE
 
