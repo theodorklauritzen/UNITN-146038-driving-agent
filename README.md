@@ -7,6 +7,11 @@
 4. Download or clone the simulation environment (https://github.com/tonegas/PyDrivingSim);
 5. Follow the guide for the evirorment setup;
 
+## Generate code
+```bash
+matlab -batch configure
+```
+
 ## Agent Setup
 ### Windows
 #### Setup using WSL:

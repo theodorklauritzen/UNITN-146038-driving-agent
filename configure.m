@@ -1,3 +1,4 @@
+disp("Setting up matlab environment and generating code...")
 addpath("matlab/")
 
 out_dir = fullfile(fileparts(mfilename('fullpath')), 'matlab/generated');

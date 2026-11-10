@@ -1,16 +1,13 @@
-#include <iostream>
-#include <fstream>
-#include <string.h>
 #include <math.h>
 #include <csignal>
+#include <iostream>
+#include <fstream>
 
+extern "C" {
+#include "screen_print_c.h"
+}
 #include "server_lib.h"
-#include "additional_logging.h"
-#include "scenario_constants.h"
-
-// --- MATLAB PRIMITIVES INCLUDE ---
-// #include "primitives.h"
-// --- MATLAB PRIMITIVES INCLUDE ---
+#include "primitive.h"
 
 #define DEFAULT_SERVER_IP    "127.0.0.1"
 #define SERVER_PORT               30000  // Server port
@@ -59,7 +56,7 @@ int main(int argc, const char * argv[]) {
             manoeuvre_msg.Status = in->Status;
 
             // Example of using log
-            std::cout << scenario_msg.data_struct << std::endl;
+            std::cout << in << std::endl;
             statsFile << in->CycleNumber << "," << num_seconds << "," << in->VLgtFild << std::endl;
 
             // ADD AGENT CODE HERE

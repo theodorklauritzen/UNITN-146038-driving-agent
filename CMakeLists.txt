@@ -23,8 +23,8 @@ add_library(agent_common STATIC
     log/screen_print.c
     log/logvars.cc
     log/additional_logging.cpp
-    matlab/cpp_generated/primitive.h
-    matlab/cpp_generated/rt_nonfinite.h
+    matlab/cpp_generated/primitive.cpp
+    matlab/cpp_generated/rt_nonfinite.cpp
 )
 target_link_libraries(agent_common PUBLIC agent_lib ${lib_ws32})
 target_compile_options(agent_common PUBLIC -DNOT_INLINED -DSERVER)
@@ -36,9 +36,9 @@ add_executable(basic_agent preliminaryWork/starting_point.cpp)
 target_link_libraries(basic_agent agent_common)
 
 # Pass Primitive agent
-add_executable(pass_primitive_agent preliminaryWork/pass_primitive_agent.cpp)
-target_link_libraries(pass_primitive_agent agent_common)
+add_executable(constant_velocity preliminaryWork/constant_velocity.cpp)
+target_link_libraries(constant_velocity agent_common)
 
-set_target_properties(basic_agent pass_primitive_agent
+set_target_properties(basic_agent constant_velocity
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${AGENT_FOLDER})
 
