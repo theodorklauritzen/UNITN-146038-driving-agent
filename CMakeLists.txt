@@ -35,10 +35,18 @@ set_target_properties(agent_common PROPERTIES
 add_executable(basic_agent preliminaryWork/starting_point.cpp)
 target_link_libraries(basic_agent agent_common)
 
-# Pass Primitive agent
+# Constant velocity agent
 add_executable(constant_velocity preliminaryWork/constant_velocity.cpp)
 target_link_libraries(constant_velocity agent_common)
 
-set_target_properties(basic_agent constant_velocity
+# The main agent
+add_executable(main_agent
+    src/main.cpp
+    src/drivingAgent.cpp
+    src/lowLevelDrivingAgent.cpp
+)
+target_link_libraries(main_agent agent_common)
+
+set_target_properties(basic_agent constant_velocity main_agent
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${AGENT_FOLDER})
 
