@@ -4,3 +4,4 @@
 #include "interfaces_data_structs.h"
 
 std::ostream& operator<<(std::ostream& os, const input_data_str& p);
+std::ostream& operator<<(std::ostream& os, const output_data_str& p);

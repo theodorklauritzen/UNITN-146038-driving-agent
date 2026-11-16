@@ -1,5 +1,6 @@
 #include "drivingAgent.hpp"
 #include "interfaces_data_structs.h"
+#include "additional_logging.h"
 #include <math.h>
 #include <csignal>
 #include <iostream>
@@ -42,15 +43,16 @@ int main(int argc, const char * argv[]) {
             static auto start = std::chrono::system_clock::now();
             auto time = std::chrono::system_clock::now()-start;
             double num_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(time).count()/1000.0;
-            std::cout << "received message at " << num_seconds << " seconds." << std::endl;
+            // std::cout << "received message at " << num_seconds << " seconds." << std::endl;
 
             // Data struct
-            input_data_str *in = &scenario_msg.data_struct;
-            output_data_str manoeuvre_msg = drivingAgent.computeManoeuvre(num_seconds, *in);
+            input_data_str in = scenario_msg.data_struct;
+            output_data_str manoeuvre_msg = drivingAgent.computeManoeuvre(num_seconds, in);
 
             // Example of using log
-            std::cout << in << std::endl;
-            statsFile << in->CycleNumber << "," << num_seconds << "," << in->VLgtFild << std::endl;
+            // std::cout << in << std::endl;
+            // statsFile << in.CycleNumber << "," << num_seconds << "," << in.VLgtFild << std::endl;
+            // std::cout << manoeuvre_msg << std::endl;
 
             // ADD AGENT CODE HERE
 
@@ -63,8 +65,6 @@ int main(int argc, const char * argv[]) {
             if (server_send_to_client(server_run, message_id, &manoeuvre_msg) == -1) {
                 perror("error send_message()");
                 exit(EXIT_FAILURE);
-            } else {
-                std::cout << "Message sent" << std::endl;
             }
         }
 

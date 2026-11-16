@@ -58,3 +58,25 @@ std::ostream& operator<<(std::ostream& os, const input_data_str& p) {
        << "}";
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const output_data_str& p) {
+    // copy count to a local (packed fields can't bind to std::clamp's references)
+    int nPts = p.NTrajectoryPoints;
+    nPts = std::clamp(nPts, 0, 23);
+
+    os << "output_data_str {\n"
+       << "  ID=" << p.ID << " Version=" << p.Version
+       << " CycleNumber=" << p.CycleNumber << '\n'
+       << "  ECUupTime=" << p.ECUupTime << " Status=" << p.Status << '\n'
+       << "  NTrajectoryPoints=" << p.NTrajectoryPoints << '\n';
+
+    print_array(os, "TrajectoryPointITime", nPts, [&](int i) { return p.TrajectoryPointITime[i]; });
+    print_array(os, "TrajectoryPointIX",    nPts, [&](int i) { return p.TrajectoryPointIX[i]; });
+    print_array(os, "TrajectoryPointIY",    nPts, [&](int i) { return p.TrajectoryPointIY[i]; });
+
+    os << "  TargetSpeed=" << p.TargetSpeed << " RequestedAcc=" << p.RequestedAcc << '\n'
+       << "  ManoeuverType=" << p.ManoeuverType
+       << " RequestedSteerWhlAg=" << p.RequestedSteerWhlAg << '\n'
+       << "}";
+    return os;
+}
