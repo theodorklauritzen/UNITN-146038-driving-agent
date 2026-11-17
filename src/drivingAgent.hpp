@@ -14,7 +14,10 @@ class DrivingAgent {
     DrivingAgentState state = DrivingAgentState::Initial;
 
     const double lookaheadDistance(const input_data_str& scenario_message);
-    
+
+    void enterStateCruise(const input_data_str& scenario_message);
+    void enterStateTrafficLight(const input_data_str& scenario_message);
+
     void planManoeuvre(const input_data_str& scenario_message);
 
     public:

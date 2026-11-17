@@ -3,6 +3,7 @@
 #include "odometer.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <stdexcept>
 
 std::ostream& operator<<(std::ostream& os, const VehicleControlSignal& controlSignal) {
     return os << "VehicleControlSignal(throttle=" << controlSignal.requestedThottle << ")";
@@ -25,7 +26,9 @@ void LowLevelDrivingAgent::stop() {
 
 const double LowLevelDrivingAgent::calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message) {
     double error = targetVelocity - scenario_message.VLgtFild;
-    double targetAcceleration = velocityRegulatorP * error;
+
+    constexpr double Kp = 1;
+    double targetAcceleration = Kp * error;
 
     return targetAcceleration;
 }
@@ -34,7 +37,7 @@ double LowLevelDrivingAgent::calculateFollowTrajectoryAcceleration(double timeSt
     double time = scenario_message.ECUupTime;
     if (targetTrajectory.getEndTime() < time) {
         double targetVelocity = targetTrajectory.vEval(targetTrajectory.getEndTime());
-        std::cout << "Trajecgory completed -> ";
+        std::cout << "Trajectory completed -> ";
         if (std::abs(targetVelocity) < 0.1) {
             stop();
             std::cout << "stopping";
@@ -53,11 +56,8 @@ double LowLevelDrivingAgent::calculateFollowTrajectoryAcceleration(double timeSt
     double v = scenario_message.VLgtFild;
     double s = getDistanceTraveled(scenario_message);
 
-    std::cout << "s = " << s << ", trf dist = " << scenario_message.TrfLightDist << std::endl;
-
-    constexpr double wn = 1.5, zeta = 1.0;
-    constexpr double Kp = wn * wn;
-    constexpr double Kv = 2.0 * zeta * wn;
+    constexpr double Kp = 0.1;
+    constexpr double Kv = 1;
 
     double aCmd = aRef + Kv * (vRef - v) + Kp * (sRef - s);
     return aCmd;
@@ -81,6 +81,10 @@ const VehicleControlSignal LowLevelDrivingAgent::calulateVehicleControl(double t
             break;
     }
 
+    if (std::isnan(targetAcceleration)) {
+        throw std::runtime_error("The target acceleration is not calculated.");
+    }
+
     VehicleControlSignal controlSignal;
     controlSignal.requestedSteeringWheelAngle = 0;
     controlSignal.requestedThottle = calulateThrottle(timeStep, targetAcceleration, scenario_message);
@@ -92,9 +96,12 @@ const double LowLevelDrivingAgent::calulateThrottle(double timeStep, double targ
     double error = targetAcceleration - scenario_message.ALgtFild;
     accelIntegratedError += error * timeStep;
 
-    double throttle;
+    constexpr double Ki = 0.0001;
+    constexpr double Kp = 0.001;
+
+    double throttle = 0;
     // Regulator throttle
-    throttle += accelRegulatorP * error + accelRegulatorI * accelIntegratedError;
+    throttle += Kp * error + Ki * accelIntegratedError;
 
     // Feedforward part, from the model a = G*u - k*v^2
     constexpr double k = 0.004279;

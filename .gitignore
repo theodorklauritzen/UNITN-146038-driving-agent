@@ -17,3 +17,5 @@ log_internal/
 compile_commands.json
 stats.csv
 .venv
+
+__pycache__

@@ -21,7 +21,6 @@ class LowLevelDrivingAgent {
 
     // For the state ConstantVelocity
     double targetVelocity = 0;
-    constexpr static double velocityRegulatorP = 1;
 
     const double calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message);
 
@@ -33,8 +32,6 @@ class LowLevelDrivingAgent {
     const double calculateStopAcceleration(const input_data_str& scenario_message);
 
     // Acceleration control
-    constexpr static double accelRegulatorI = 0.001;
-    constexpr static double accelRegulatorP = 0.005;
     double accelIntegratedError = 0;
     const double calulateThrottle(double timeStep, double targetAcceleration, const input_data_str& scenario_message);
 

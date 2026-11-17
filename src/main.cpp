@@ -1,6 +1,7 @@
 #include "drivingAgent.hpp"
 #include "interfaces_data_structs.h"
 #include "additional_logging.h"
+#include "odometer.hpp"
 #include <math.h>
 #include <csignal>
 #include <iostream>
@@ -24,7 +25,7 @@ int main(int argc, const char * argv[]) {
     std::signal(SIGINT, handle_sigint);
 
     std::ofstream statsFile("stats.csv");
-    statsFile << "time,velocity,acceleration" << std::endl;
+    statsFile << "time,distance,velocity,acceleration" << std::endl;
 
     server_agent_init(DEFAULT_SERVER_IP, SERVER_PORT);
 
@@ -44,7 +45,7 @@ int main(int argc, const char * argv[]) {
             input_data_str in = scenario_msg.data_struct;
             output_data_str manoeuvre_msg = drivingAgent.computeManoeuvre(in);
 
-            statsFile << in.ECUupTime << "," << in.VLgtFild << "," << in.ALgtFild << std::endl;
+            statsFile << in.ECUupTime << "," << getDistanceTraveled(in) << "," << in.VLgtFild << "," << in.ALgtFild << std::endl;
 
             // Example of using log
             // std::cout << in << std::endl;

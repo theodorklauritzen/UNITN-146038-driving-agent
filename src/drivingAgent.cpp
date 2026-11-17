@@ -13,21 +13,30 @@ const double DrivingAgent::lookaheadDistance(const input_data_str& scenario_mess
     return std::max(50.0, 5 * scenario_message.VLgtFild);
 }
 
-void DrivingAgent::planManoeuvre(const input_data_str& scenario_message) {
-    switch (state) {
-        case DrivingAgentState::Initial:
+void DrivingAgent::enterStateCruise(const input_data_str& scenario_message) {
+    state = DrivingAgentState::Cruise;
 
-            state = DrivingAgentState::Cruise;
-            return;
-        case DrivingAgentState::TrafficLight:
-            return;
-        case DrivingAgentState::Cruise:
-            if (scenario_message.TrfLightDist > lookaheadDistance(scenario_message)) {
-                return;
-            }
-            state = DrivingAgentState::TrafficLight;
-            break;
-    }
+    double s0 = getDistanceTraveled(scenario_message);
+    double t0 = scenario_message.ECUupTime;
+
+    double v0 = scenario_message.VLgtFild;
+    double a0 = scenario_message.ALgtFild;
+    double sf = 60;
+    double vf = 15;
+
+    double tf = finalOptTime(v0, a0, sf, vf);
+
+    double results[5];
+    evalPrimitiveCoeffs(v0, a0, sf, vf, 0, tf, results);
+    VehicleTrajectory trajectory(t0, tf, s0, results);
+
+    std::cout << "state: Cruise -> " << trajectory << std::endl;
+
+    lowLevelControl.followTrajectory(trajectory);
+}
+
+void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message) {
+    state = DrivingAgentState::TrafficLight;
 
     double s0 = getDistanceTraveled(scenario_message);
     double t0 = scenario_message.ECUupTime;
@@ -35,7 +44,6 @@ void DrivingAgent::planManoeuvre(const input_data_str& scenario_message) {
     double v0 = scenario_message.VLgtFild;
     double a0 = scenario_message.ALgtFild;
     double sf = scenario_message.TrfLightDist;
-    double vf = 5;
 
     double results[5];
     double sf_max;
@@ -43,9 +51,24 @@ void DrivingAgent::planManoeuvre(const input_data_str& scenario_message) {
     stop_primitive(v0, a0, sf, results, &sf_max, &tf);
     VehicleTrajectory trajectory(t0, tf, s0, results);
 
-    std::cout << trajectory << std::endl;
+    std::cout << "state: TrafficLight -> " << trajectory << std::endl;
 
     lowLevelControl.followTrajectory(trajectory);
+}
+
+void DrivingAgent::planManoeuvre(const input_data_str& scenario_message) {
+    switch (state) {
+        case DrivingAgentState::Initial:
+            enterStateCruise(scenario_message);
+            return;
+        case DrivingAgentState::TrafficLight:
+            return;
+        case DrivingAgentState::Cruise:
+            if (scenario_message.TrfLightDist < lookaheadDistance(scenario_message)) {
+                enterStateTrafficLight(scenario_message);
+            }
+            return;
+    }
 }
 
 output_data_str DrivingAgent::computeManoeuvre(const input_data_str& scenario_message) {
