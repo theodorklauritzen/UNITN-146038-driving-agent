@@ -1,7 +1,8 @@
 #include "lowLevelDrivingAgent.hpp"
 #include "interfaces_data_structs.h"
+#include "odometer.hpp"
 #include <cmath>
-#include <stdexcept>
+#include <cstdlib>
 
 std::ostream& operator<<(std::ostream& os, const VehicleControlSignal& controlSignal) {
     return os << "VehicleControlSignal(throttle=" << controlSignal.requestedThottle << ")";
@@ -17,53 +18,74 @@ void LowLevelDrivingAgent::followTrajectory(VehicleTrajectory trajectory) {
     targetTrajectory = trajectory;
 }
 
-VehicleControlSignal LowLevelDrivingAgent::calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message) {
+void LowLevelDrivingAgent::stop() {
+    state = LowLevelDrivingAgentState::Stop;
+    targetVelocity = 0;
+}
+
+const double LowLevelDrivingAgent::calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message) {
     double error = targetVelocity - scenario_message.VLgtFild;
     double targetAcceleration = velocityRegulatorP * error;
 
-    VehicleControlSignal controlSignal;
-
-    controlSignal.requestedSteeringWheelAngle = 0;
-    controlSignal.requestedThottle = calulateThrottle(timeStep, targetAcceleration, scenario_message);
-
-    return controlSignal;
+    return targetAcceleration;
 }
 
-VehicleControlSignal LowLevelDrivingAgent::calculateFollowTrajectoryAcceleration(double timeStep, double time, const input_data_str& scenario_message) {
-    VehicleControlSignal controlSignal;
-    controlSignal.requestedSteeringWheelAngle = 0;
-
-    double targetAcceleration = targetTrajectory.aEval(time);
-
-    controlSignal.requestedThottle = calulateThrottle(timeStep, targetAcceleration, scenario_message);
-
+double LowLevelDrivingAgent::calculateFollowTrajectoryAcceleration(double timeStep, const input_data_str& scenario_message) {
+    double time = scenario_message.ECUupTime;
     if (targetTrajectory.getEndTime() < time) {
-        double targetVelocity = targetTrajectory.vEval(time);
-        std::cout << "targetVelocity: " << targetVelocity << std::endl;
-        setTargetVelocity(targetVelocity);
+        double targetVelocity = targetTrajectory.vEval(targetTrajectory.getEndTime());
+        std::cout << "Trajecgory completed -> ";
+        if (std::abs(targetVelocity) < 0.1) {
+            stop();
+            std::cout << "stopping";
+        } else {
+            setTargetVelocity(targetVelocity);
+            std::cout << "new target velocity: " << targetVelocity;
+        }
+        std::cout << std::endl;
+        time = targetTrajectory.getEndTime();
     }
 
-    return controlSignal;
+    double aRef = targetTrajectory.aEval(time);
+    double vRef = targetTrajectory.vEval(time);
+    double sRef = targetTrajectory.sEval(time);
+
+    double v = scenario_message.VLgtFild;
+    double s = getDistanceTraveled(scenario_message);
+
+    std::cout << "s = " << s << ", trf dist = " << scenario_message.TrfLightDist << std::endl;
+
+    constexpr double wn = 1.5, zeta = 1.0;
+    constexpr double Kp = wn * wn;
+    constexpr double Kv = 2.0 * zeta * wn;
+
+    double aCmd = aRef + Kv * (vRef - v) + Kp * (sRef - s);
+    return aCmd;
 }
 
-const VehicleControlSignal LowLevelDrivingAgent::calulateVehicleControl(double time, double timeStep, const input_data_str& scenario_message) {
-    // TODO: Maybe do a LP filter on the result?
-    // switch (state) {
-    //     case LowLevelDrivingAgentState::ConstantVelocity:
-    //         return calculateConstantVelocityAcceleration(timeStep, scenario_message);
-    //     case LowLevelDrivingAgentState::FollowTrajectory:
-    //         return calculateFollowTrajectoryAcceleration(timeStep, time, scenario_message);
-    // }
-    //
-    // throw std::runtime_error("Could not calulate vehicle control signal, not in a valid state.");
+const double LowLevelDrivingAgent::calculateStopAcceleration(const input_data_str& scenario_message) {
+    return -1; // This will brake, it seems like the vehicle cannot go in reverse.
+}
 
-    double targetAcceleration = (time < 7) ? 1 : 0;
+const VehicleControlSignal LowLevelDrivingAgent::calulateVehicleControl(double timeStep, const input_data_str& scenario_message) {
+    double targetAcceleration = NAN;
+    switch (state) {
+        case LowLevelDrivingAgentState::ConstantVelocity:
+            targetAcceleration = calculateConstantVelocityAcceleration(timeStep, scenario_message);
+            break;
+        case LowLevelDrivingAgentState::FollowTrajectory:
+            targetAcceleration = calculateFollowTrajectoryAcceleration(timeStep, scenario_message);
+            break;
+        case LowLevelDrivingAgentState::Stop:
+            targetAcceleration = calculateStopAcceleration(scenario_message);
+            break;
+    }
+
     VehicleControlSignal controlSignal;
     controlSignal.requestedSteeringWheelAngle = 0;
     controlSignal.requestedThottle = calulateThrottle(timeStep, targetAcceleration, scenario_message);
-    std::cout << scenario_message.VLgtFild << "," << scenario_message.ALgtFild << std::endl;
-    return controlSignal;
 
+    return controlSignal;
 }
 
 const double LowLevelDrivingAgent::calulateThrottle(double timeStep, double targetAcceleration, const input_data_str& scenario_message) {
@@ -74,7 +96,7 @@ const double LowLevelDrivingAgent::calulateThrottle(double timeStep, double targ
     // Regulator throttle
     throttle += accelRegulatorP * error + accelRegulatorI * accelIntegratedError;
 
-    // Feedforward part, from the model a = G*u - k*v^2, where G = 7 and k = 0.004279
+    // Feedforward part, from the model a = G*u - k*v^2
     constexpr double k = 0.004279;
     constexpr double gain = 7;
     double velocity = scenario_message.VLgtFild;

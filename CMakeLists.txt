@@ -45,6 +45,7 @@ add_executable(main_agent
     src/drivingAgent.cpp
     src/lowLevelDrivingAgent.cpp
     src/vehicleTrajectory.cpp
+    src/odometer.cpp
 )
 target_link_libraries(main_agent agent_common)
 

@@ -40,17 +40,11 @@ int main(int argc, const char * argv[]) {
 
         // Receive scenario message from the environment
         if (server_receive_from_client(&server_run, &message_id, &scenario_msg.data_struct) == 0) {
-            // Init time
-            static auto start = std::chrono::system_clock::now();
-            auto time = std::chrono::system_clock::now()-start;
-            double num_seconds = std::chrono::duration_cast<std::chrono::milliseconds>(time).count()/1000.0;
-            // std::cout << "received message at " << num_seconds << " seconds." << std::endl;
-
             // Data struct
             input_data_str in = scenario_msg.data_struct;
-            output_data_str manoeuvre_msg = drivingAgent.computeManoeuvre(num_seconds, in);
+            output_data_str manoeuvre_msg = drivingAgent.computeManoeuvre(in);
 
-            statsFile << num_seconds << "," << in.VLgtFild << "," << in.ALgtFild << std::endl;
+            statsFile << in.ECUupTime << "," << in.VLgtFild << "," << in.ALgtFild << std::endl;
 
             // Example of using log
             // std::cout << in << std::endl;

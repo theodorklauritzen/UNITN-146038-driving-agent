@@ -12,6 +12,7 @@ std::ostream& operator<<(std::ostream& os, const VehicleControlSignal& controlSi
 enum class LowLevelDrivingAgentState {
     ConstantVelocity,
     FollowTrajectory,
+    Stop,
 };
 
 class LowLevelDrivingAgent {
@@ -22,11 +23,14 @@ class LowLevelDrivingAgent {
     double targetVelocity = 0;
     constexpr static double velocityRegulatorP = 1;
 
-    VehicleControlSignal calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message);
+    const double calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message);
 
-    // For the satet FollowTrajectory
+    // For the state FollowTrajectory
     VehicleTrajectory targetTrajectory;
-    VehicleControlSignal calculateFollowTrajectoryAcceleration(double timeStep, double time, const input_data_str& scenario_message);
+    double calculateFollowTrajectoryAcceleration(double timeStep, const input_data_str& scenario_message);
+
+    // For the state Stop
+    const double calculateStopAcceleration(const input_data_str& scenario_message);
 
     // Acceleration control
     constexpr static double accelRegulatorI = 0.001;
@@ -38,6 +42,7 @@ class LowLevelDrivingAgent {
 
     void setTargetVelocity(double velocity);
     void followTrajectory(VehicleTrajectory trajectory);
+    void stop();
 
-    const VehicleControlSignal calulateVehicleControl(double time, double timeStep, const input_data_str& scenario_message);
+    const VehicleControlSignal calulateVehicleControl(double timeStep, const input_data_str& scenario_message);
 };

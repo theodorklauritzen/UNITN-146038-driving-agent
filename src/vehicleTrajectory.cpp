@@ -2,9 +2,10 @@
 #include <algorithm>
 #include <cmath>
 
-VehicleTrajectory::VehicleTrajectory(double startTime, double duration, std::span<double, 5> m) {
+VehicleTrajectory::VehicleTrajectory(double startTime, double duration, double startDistance, std::span<double, 5> m) {
     this->startTime = startTime;
     this->duration = duration;
+    this->startDistance = startDistance;
     std::ranges::copy(m, this->m.begin());
 }
 

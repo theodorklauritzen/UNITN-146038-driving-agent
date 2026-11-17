@@ -15,12 +15,12 @@ class DrivingAgent {
 
     const double lookaheadDistance(const input_data_str& scenario_message);
     
-    void planManoeuvre(const double time, const input_data_str& scenario_message);
+    void planManoeuvre(const input_data_str& scenario_message);
 
     public:
 
     DrivingAgent();
 
-    output_data_str computeManoeuvre(const double time, const input_data_str& scenario_message);
+    output_data_str computeManoeuvre(const input_data_str& scenario_message);
 };
 
