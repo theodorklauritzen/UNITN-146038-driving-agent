@@ -13,6 +13,8 @@ class DrivingAgent {
     LowLevelDrivingAgent lowLevelControl;
     DrivingAgentState state = DrivingAgentState::Initial;
 
+    constexpr static double safetyDistance = 2;
+
     const double lookaheadDistance(const input_data_str& scenario_message);
 
     void enterStateCruise(const input_data_str& scenario_message);

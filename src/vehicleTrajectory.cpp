@@ -35,7 +35,7 @@ const double VehicleTrajectory::eval(double time, int derivates) {
 }
 
 std::ostream& operator<<(std::ostream& os, const VehicleTrajectory& trajectory) {
-    os << "VehicleTrajectory(startTime=" << trajectory.startTime << ", duration=" << trajectory.duration <<  ", m=[";
+    os << "VehicleTrajectory(startTime=" << trajectory.startTime << ", duration=" << trajectory.duration <<  ", startDistance=" << trajectory.startDistance << ", m=[";
     for (std::size_t i = 0; i < trajectory.m.size(); ++i)
         os << (i ? ", " : "") << trajectory.m[i];
     return os << "])";

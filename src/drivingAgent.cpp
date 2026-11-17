@@ -43,7 +43,7 @@ void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message
 
     double v0 = scenario_message.VLgtFild;
     double a0 = scenario_message.ALgtFild;
-    double sf = scenario_message.TrfLightDist;
+    double sf = scenario_message.TrfLightDist - safetyDistance;
 
     double results[5];
     double sf_max;

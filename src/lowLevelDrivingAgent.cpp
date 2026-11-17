@@ -64,6 +64,7 @@ double LowLevelDrivingAgent::calculateFollowTrajectoryAcceleration(double timeSt
 }
 
 const double LowLevelDrivingAgent::calculateStopAcceleration(const input_data_str& scenario_message) {
+    std::cout << "Distance left: " << scenario_message.TrfLightDist << std::endl;
     return -1; // This will brake, it seems like the vehicle cannot go in reverse.
 }
 
@@ -93,21 +94,30 @@ const VehicleControlSignal LowLevelDrivingAgent::calulateVehicleControl(double t
 }
 
 const double LowLevelDrivingAgent::calulateThrottle(double timeStep, double targetAcceleration, const input_data_str& scenario_message) {
-    double error = targetAcceleration - scenario_message.ALgtFild;
-    accelIntegratedError += error * timeStep;
-
-    constexpr double Ki = 0.0001;
-    constexpr double Kp = 0.001;
-
     double throttle = 0;
-    // Regulator throttle
-    throttle += Kp * error + Ki * accelIntegratedError;
 
     // Feedforward part, from the model a = G*u - k*v^2
     constexpr double k = 0.004279;
-    constexpr double gain = 7;
+    constexpr double gasGain = 7;
+    constexpr double brakeGain = 20;
+
     double velocity = scenario_message.VLgtFild;
-    throttle += (targetAcceleration + k * std::pow(velocity, 2)) / gain;
+    double aeroAdjusted = targetAcceleration + k * std::pow(velocity, 2);
+
+    if (aeroAdjusted > 0) { // We need more gas
+        throttle += aeroAdjusted / gasGain;
+    } else { // We need to brake
+        throttle += aeroAdjusted / brakeGain;
+    }
+
+    // Regulator throttle
+    double error = targetAcceleration - scenario_message.ALgtFild;
+    accelIntegratedError += error * timeStep;
+
+    constexpr double Ki = 0.01;
+    constexpr double Kp = 0.05;
+
+    throttle += Kp * error + Ki * accelIntegratedError;
 
     return throttle;
 }

@@ -2,6 +2,7 @@
 #include "interfaces_data_structs.h"
 #include "additional_logging.h"
 #include "odometer.hpp"
+#include <cstdlib>
 #include <math.h>
 #include <csignal>
 #include <iostream>
