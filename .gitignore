@@ -15,5 +15,5 @@ Makefile
 CMakeFiles/
 log_internal/
 compile_commands.json
-*.csv
+stats.csv
 .venv

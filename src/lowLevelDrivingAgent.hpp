@@ -3,7 +3,7 @@
 #include "vehicleTrajectory.hpp"
 
 struct VehicleControlSignal {
-    double requestedAcceleration;
+    double requestedThottle;
     double requestedSteeringWheelAngle;
 };
 
@@ -20,15 +20,19 @@ class LowLevelDrivingAgent {
 
     // For the state ConstantVelocity
     double targetVelocity = 0;
-    double integratedError = 0;
-    constexpr static double regulatorI = 0.01;
-    constexpr static double regulatorP = 1;
+    constexpr static double velocityRegulatorP = 1;
 
     VehicleControlSignal calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message);
 
     // For the satet FollowTrajectory
     VehicleTrajectory targetTrajectory;
-    VehicleControlSignal calculateFollowTrajectoryAcceleration(double time, const input_data_str& scenario_message);
+    VehicleControlSignal calculateFollowTrajectoryAcceleration(double timeStep, double time, const input_data_str& scenario_message);
+
+    // Acceleration control
+    constexpr static double accelRegulatorI = 0.001;
+    constexpr static double accelRegulatorP = 0.005;
+    double accelIntegratedError = 0;
+    const double calulateThrottle(double timeStep, double targetAcceleration, const input_data_str& scenario_message);
 
     public:
 

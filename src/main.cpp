@@ -5,6 +5,7 @@
 #include <csignal>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 extern "C" {
 #include "screen_print_c.h"
@@ -23,7 +24,7 @@ int main(int argc, const char * argv[]) {
     std::signal(SIGINT, handle_sigint);
 
     std::ofstream statsFile("stats.csv");
-    statsFile << "cycle, time, velocity" << std::endl;
+    statsFile << "time,velocity,acceleration" << std::endl;
 
     server_agent_init(DEFAULT_SERVER_IP, SERVER_PORT);
 
@@ -48,6 +49,8 @@ int main(int argc, const char * argv[]) {
             // Data struct
             input_data_str in = scenario_msg.data_struct;
             output_data_str manoeuvre_msg = drivingAgent.computeManoeuvre(num_seconds, in);
+
+            statsFile << num_seconds << "," << in.VLgtFild << "," << in.ALgtFild << std::endl;
 
             // Example of using log
             // std::cout << in << std::endl;

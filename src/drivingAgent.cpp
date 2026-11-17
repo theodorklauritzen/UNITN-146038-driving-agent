@@ -13,7 +13,7 @@ const double DrivingAgent::lookaheadDistance(const input_data_str& scenario_mess
 }
 
 void DrivingAgent::planManoeuvre(const double time, const input_data_str& scenario_message) {
-    if (state == DrivingAgentState::Cruise) {
+    if (state != DrivingAgentState::Initial) {
         return;
     }
     state = DrivingAgentState::Cruise;
@@ -30,7 +30,7 @@ void DrivingAgent::planManoeuvre(const double time, const input_data_str& scenar
     evalPrimitiveCoeffs(v0, a0, sf, vf, 0, tf, results);
     VehicleTrajectory trajectory(time, tf, results);
 
-    std::cout << trajectory << std::endl;
+    // std::cout << trajectory << std::endl;
 
     lowLevelControl.followTrajectory(trajectory);
 }
@@ -45,8 +45,7 @@ output_data_str DrivingAgent::computeManoeuvre(const double time, const input_da
     double timeStep = time - lastMessageTime;
 
     VehicleControlSignal controlSignal = lowLevelControl.calulateVehicleControl(time, timeStep, scenario_message);
-    std::cout << controlSignal << std::endl;
-    manoeuvre.RequestedAcc = controlSignal.requestedAcceleration;
+    manoeuvre.RequestedAcc = controlSignal.requestedThottle;
     manoeuvre.RequestedSteerWhlAg = controlSignal.requestedSteeringWheelAngle;
 
     lastMessageTime = time;

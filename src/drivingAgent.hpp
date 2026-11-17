@@ -3,7 +3,7 @@
 #include "lowLevelDrivingAgent.hpp"
 
 enum class DrivingAgentState {
-    Stop,
+    Initial,
     Cruise,
     TrafficLight,
 };
@@ -11,7 +11,7 @@ enum class DrivingAgentState {
 class DrivingAgent {
     double lastMessageTime = 0;
     LowLevelDrivingAgent lowLevelControl;
-    DrivingAgentState state = DrivingAgentState::Stop;
+    DrivingAgentState state = DrivingAgentState::Initial;
 
     const double lookaheadDistance(const input_data_str& scenario_message);
     
