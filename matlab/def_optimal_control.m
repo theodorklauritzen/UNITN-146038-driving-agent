@@ -48,6 +48,8 @@ solution = dsolve(odes, conds);
 j_solution = subs(u_opt, l3(t), solution.l3);
 opt_fun = matlabFunction([solution.s; solution.v; solution.a; j_solution], 'Vars', {t, v0, a0, sf, vf, af, tf}, 'File', 'matlab/generated/opt_fun');
 
+jEval = matlabFunction(j_solution, 'Vars', {t, v0, a0, sf, vf, af, tf}, 'File', 'matlab/generated/jEval');
+
 j_total = simplify(int(j_solution^2, t, 0, tf));
 totalCost = matlabFunction(j_total, 'Vars', {v0, a0, sf, vf, af, tf}, 'File', 'matlab/generated/totalCost');
 

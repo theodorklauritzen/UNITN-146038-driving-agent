@@ -9,6 +9,7 @@ addpath("matlab/generated")
 
 def_optimal_control
 def_stop_primitive
+def_stop_primitive_j0
 
 generate_code
 

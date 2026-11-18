@@ -25,7 +25,7 @@ def main():
         sTraj = evalPolynom(time, 0, m)
         vTraj = evalPolynom(time, 1, m)
 
-        label = "Reference trajectory" if i == 0 else None
+        label = "Reference trajectories" if i == 0 else None
         ax1.plot(sTraj + startDistance, vTraj, "--", color="orange", label=label)
         ax2.plot(time + startTime, vTraj, "--", color="orange", label=label)
 
