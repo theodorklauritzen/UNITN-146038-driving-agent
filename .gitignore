@@ -16,6 +16,7 @@ CMakeFiles/
 log_internal/
 compile_commands.json
 stats.csv
+trajectories.txt
 .venv
 
 __pycache__

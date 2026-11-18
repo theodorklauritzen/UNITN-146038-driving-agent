@@ -5,10 +5,9 @@ import pandas as pd
 
 
 def main():
-    trajectories = [
-        "VehicleTrajectory(startTime=0.049, duration=7.5, startDistance=0, m=[-8.83774e-08, -1.76755e-06, 2.13333, -0.853333, 0.113778])",
-        "VehicleTrajectory(startTime=9.249, duration=12.0931, startDistance=85.479, m=[15.0077, -0.0102472, -1.22636, 0.40606, -0.0503839])"
-    ]
+    trajectories = []
+    with open("trajectories.txt") as file:
+        trajectories = file.read().strip().split("\n")
 
     df = pd.read_csv("stats.csv", skipinitialspace=True)
 
@@ -26,9 +25,9 @@ def main():
         sTraj = evalPolynom(time, 0, m)
         vTraj = evalPolynom(time, 1, m)
 
-        label = f"Reference {i + 1}"
-        ax1.plot(sTraj + startDistance, vTraj, "--", label=label)
-        ax2.plot(time + startTime, vTraj, "--", label=label)
+        label = "Reference trajectory" if i == 0 else None
+        ax1.plot(sTraj + startDistance, vTraj, "--", color="orange", label=label)
+        ax2.plot(time + startTime, vTraj, "--", color="orange", label=label)
 
     ax1.plot(df["distance"], df["velocity"], label="Simulation")
     ax2.plot(df["time"], df["velocity"], label="Simulation")

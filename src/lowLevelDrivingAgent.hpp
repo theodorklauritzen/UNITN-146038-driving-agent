@@ -1,6 +1,7 @@
 #pragma once
 #include "interfaces_data_structs.h"
 #include "vehicleTrajectory.hpp"
+#include <fstream>
 
 struct VehicleControlSignal {
     double requestedThottle;
@@ -22,18 +23,19 @@ class LowLevelDrivingAgent {
     // For the state ConstantVelocity
     double targetVelocity = 0;
 
-    const double calculateConstantVelocityAcceleration(double timeStep, const input_data_str& scenario_message);
+    const double calculateConstantVelocityThrottle(double timeStep, const input_data_str& scenario_message);
 
     // For the state FollowTrajectory
+    std::ofstream trajectoryFile{"trajectories.txt"};
     VehicleTrajectory targetTrajectory;
     double calculateFollowTrajectoryAcceleration(double timeStep, const input_data_str& scenario_message);
 
     // For the state Stop
-    const double calculateStopAcceleration(const input_data_str& scenario_message);
+    const double calculateStopThrottle(const input_data_str& scenario_message);
 
     // Acceleration control
     double accelIntegratedError = 0;
-    const double calulateThrottle(double timeStep, double targetAcceleration, const input_data_str& scenario_message);
+    const double calculateThrottle(double timeStep, double targetAcceleration, const input_data_str& scenario_message);
 
     public:
 
