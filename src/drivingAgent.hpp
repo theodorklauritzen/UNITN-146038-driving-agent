@@ -26,6 +26,7 @@ class DrivingAgent {
     const double lookaheadDistance(const input_data_str& scenario_message);
 
     void planManoeuvre(const input_data_str& scenario_message);
+    double lastStateChange = 0;
 
     int nextSpeedLimitHandle = 0;
     int nextPassingSpeedLimit = 0;

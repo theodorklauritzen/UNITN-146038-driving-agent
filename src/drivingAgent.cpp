@@ -45,6 +45,7 @@ void DrivingAgent::changeSpeed(double speed, double distance, const input_data_s
 
 void DrivingAgent::enterStateCruise(const input_data_str& scenario_message) {
     state = DrivingAgentState::Cruise;
+    lastStateChange = scenario_message.ECUupTime;
     RecommendedSpeedReturn speedReturn = getRecommendedUpperSpeed(scenario_message);
     changeSpeed(speedReturn.speed, std::max(speedReturn.distance, 50.0), scenario_message);
 }
@@ -64,6 +65,7 @@ void DrivingAgent::loopStateCruise(const input_data_str& scenario_message) {
 
 void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message) {
     state = DrivingAgentState::TrafficLight;
+    lastStateChange = scenario_message.ECUupTime;
 
     double s0 = getDistanceTraveled(scenario_message);
     double t0 = scenario_message.ECUupTime;
@@ -73,6 +75,11 @@ void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message
     double sf = scenario_message.TrfLightDist;
 
     nextTrafficLightPosition = s0 + sf;
+
+    if (sf < 0) {
+        trafficLightIntendToStop = false;
+        return;
+    }
 
     double T_green;
     double T_red;
@@ -159,6 +166,14 @@ void DrivingAgent::loopStateTrafficLight(const input_data_str &scenario_message)
         return;
     }
 
+    if (
+        getDistanceTraveled(scenario_message) < nextTrafficLightPosition - safetyDistance * 2 &&
+        scenario_message.ECUupTime - lastStateChange > 2
+    ) { // Reevaluate
+        enterStateTrafficLight(scenario_message);
+    }
+
+    // waiting at green light
     TrafficLightState currentState = static_cast<TrafficLightState>(scenario_message.TrfLightCurrState);
     if (
         trafficLightIntendToStop &&
