@@ -10,6 +10,10 @@
 #include "scenario_constants.h"
 #include "vehicleTrajectory.hpp"
 
+double removeNear0Value(double value) {
+    return (std::abs(value) < 1e-3) ? std::copysign(1e-3, value) : value;
+}
+
 DrivingAgent::DrivingAgent() {
     lowLevelControl.setTargetVelocity(20);
 }
@@ -24,17 +28,17 @@ void DrivingAgent::changeSpeed(double speed, double distance, const input_data_s
     double t0 = scenario_message.ECUupTime;
 
     double v0 = scenario_message.VLgtFild;
-    double a0 = scenario_message.ALgtFild;
+    double a0 = removeNear0Value(scenario_message.ALgtFild);
     double sf = distance;
     double vf = speed;
 
     double tf = finalOptTime(v0, a0, sf, vf);
 
-    double results[5];
+    double results[5] = {0};
     evalPrimitiveCoeffs(v0, a0, sf, vf, 0, tf, results);
     VehicleTrajectory trajectory(t0, tf, s0, results);
 
-    std::cout << "state: Speed: " << speed << " Cruise -> " << trajectory << std::endl;
+    std::cout << "Speed change from " << v0 << " to " << speed << " " << trajectory << std::endl;
 
     lowLevelControl.followTrajectory(trajectory);
 }
@@ -46,7 +50,7 @@ void DrivingAgent::enterStateCruise(const input_data_str& scenario_message) {
 }
 
 void DrivingAgent::loopStateCruise(const input_data_str& scenario_message) {
-    if (scenario_message.TrfLightDist < lookaheadDistance(scenario_message)) {
+    if (scenario_message.TrfLightDist < lookaheadDistance(scenario_message) && scenario_message.TrfLightDist > 0) {
         enterStateTrafficLight(scenario_message);
         return;
     }
@@ -65,12 +69,10 @@ void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message
     double t0 = scenario_message.ECUupTime;
 
     double v0 = scenario_message.VLgtFild;
-    double a0 = scenario_message.ALgtFild;
+    double a0 = removeNear0Value(scenario_message.ALgtFild);
     double sf = scenario_message.TrfLightDist;
 
     nextTrafficLightPosition = s0 + sf;
-
-    constexpr double lengthOfIntersection = 10;
 
     double T_green;
     double T_red;
@@ -120,10 +122,13 @@ void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message
 
     if (!passPrimiteIsValid) { // We need to stop
         VehicleTrajectory trajectory(t0, tf, s0, stopCoeffs);
+        trafficLightIntendToStop = true;
         std::cout << "state: TrafficLight stopping -> " << trajectory << std::endl;
         lowLevelControl.followTrajectory(trajectory);
         return;
     }
+
+    trafficLightIntendToStop = false;
 
     if (passCoeffs1[2] * passCoeffs2[2] < 0) { // Different signs, should do a j(0) = 0 instead
         double passJ0Coeffs[5];
@@ -149,8 +154,21 @@ void DrivingAgent::enterStateTrafficLight(const input_data_str& scenario_message
 }
 
 void DrivingAgent::loopStateTrafficLight(const input_data_str &scenario_message) {
-    if (getDistanceTraveled(scenario_message) >= nextTrafficLightPosition) {
+    if (getDistanceTraveled(scenario_message) >= nextTrafficLightPosition + lengthOfIntersection) {
         enterStateCruise(scenario_message);
+        return;
+    }
+
+    TrafficLightState currentState = static_cast<TrafficLightState>(scenario_message.TrfLightCurrState);
+    if (
+        trafficLightIntendToStop &&
+        scenario_message.TrfLightDist < safetyDistance * 2 &&
+        currentState == TrafficLightState::GREEN &&
+        scenario_message.TrfLightFirstTimeToChange > 5 // The light is green for 8 seconds
+    ) {
+        trafficLightIntendToStop = false;
+        RecommendedSpeedReturn recommendedSpeed = getRecommendedUpperSpeed(scenario_message);
+        changeSpeed(recommendedSpeed.speed, std::max(recommendedSpeed.distance, 50.0), scenario_message);
     }
 }
 

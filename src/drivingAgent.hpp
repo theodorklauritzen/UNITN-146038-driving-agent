@@ -13,6 +13,8 @@ struct RecommendedSpeedReturn {
     double distance;
 };
 
+double removeNear0Value(double value);
+
 class DrivingAgent {
     double lastMessageTime = 0;
     LowLevelDrivingAgent lowLevelControl;
@@ -38,6 +40,8 @@ class DrivingAgent {
 
     // Traffic light members
     double nextTrafficLightPosition = 0;
+    constexpr static double lengthOfIntersection = 10;
+    bool trafficLightIntendToStop = false;
     void enterStateTrafficLight(const input_data_str& scenario_message);
     void loopStateTrafficLight(const input_data_str& scenario_message);
 
