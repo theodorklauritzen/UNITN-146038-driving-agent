@@ -1,5 +1,6 @@
 #include "additional_logging.h"
 #include <algorithm>
+#include "scenario_constants.h"
 
 template <typename F>
 static void print_array(std::ostream& os, const char* name, int n, F get) {
@@ -51,9 +52,9 @@ std::ostream& operator<<(std::ostream& os, const input_data_str& p) {
     os << "  NrTrfLights=" << p.NrTrfLights << " TrfLightDist=" << p.TrfLightDist
        << " TrfLightCurrState=" << p.TrfLightCurrState << '\n'
        << "  TrfLight next: t1=" << p.TrfLightFirstTimeToChange
-       << " -> " << p.TrfLightFirstNextState
+       << " -> " << to_string(static_cast<TrafficLightState>(p.TrfLightFirstNextState))
        << ", t2=" << p.TrfLightSecondTimeToChange
-       << " -> " << p.TrfLightSecondNextState
+       << " -> " << to_string(static_cast<TrafficLightState>(p.TrfLightSecondNextState))
        << ", t3=" << p.TrfLightThirdTimeToChange << '\n'
        << "}";
     return os;

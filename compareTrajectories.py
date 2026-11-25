@@ -13,6 +13,9 @@ def main():
 
     fig, (ax1, ax2) = plt.subplots(2)
 
+    ax1.plot(df["distance"], df["velocity"], label="Simulation")
+    ax2.plot(df["time"], df["velocity"], label="Simulation")
+
     for i, traj in enumerate(trajectories):
         params = parse_trajectory(traj)
         duration = params["duration"]
@@ -26,11 +29,8 @@ def main():
         vTraj = evalPolynom(time, 1, m)
 
         label = "Reference trajectories" if i == 0 else None
-        ax1.plot(sTraj + startDistance, vTraj, "--", color="orange", label=label)
-        ax2.plot(time + startTime, vTraj, "--", color="orange", label=label)
-
-    ax1.plot(df["distance"], df["velocity"], label="Simulation")
-    ax2.plot(df["time"], df["velocity"], label="Simulation")
+        ax1.plot(sTraj + startDistance, vTraj, "--", color="orange", alpha=0.8, label=label)
+        ax2.plot(time + startTime, vTraj, "--", color="orange", alpha=0.8, label=label)
 
     ax1.legend()
     ax1.set_xlabel("Distance [m]")
